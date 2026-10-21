@@ -1,5 +1,5 @@
 import json
-from research_agent.inno.workflow.flowcache import FlowModule, ToolModule, AgentModule
+from research_agent.inno.workflow.flowcache import FlowModule, ToolModule, AgentModule, validate_prepare_result
 from research_agent.inno.tools.inno_tools.paper_search import get_arxiv_paper_meta
 from research_agent.inno.tools.inno_tools.code_search import search_github_repos, search_github_code
 from research_agent.inno.agents.inno_agent.plan_agent import get_coding_plan_agent
@@ -150,7 +150,9 @@ Your task is to choose at least 5 repositories as the reference codebases. Note 
         messages = [{"role": "user", "content": query}]
         prepare_messages, context_variables = await self.prepare_agent(messages, context_variables)
         prepare_res = prepare_messages[-1]["content"]
-        prepare_dict = extract_json_from_output(prepare_res)
+        prepare_dict = validate_prepare_result(
+            context_variables.get("prepare_result") or extract_json_from_output(prepare_res)
+        )
         paper_list = prepare_dict["reference_papers"]
         download_res = self.download_papaer({"paper_list": paper_list, "local_root": local_root, "workplace_name": workplace_name})
 
