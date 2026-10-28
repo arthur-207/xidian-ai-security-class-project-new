@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import csv
 import asyncio
-import hashlib
 import json
 import os
 import re
@@ -13,6 +12,7 @@ from typing import Any
 import httpx
 import jieba.analyse
 from dotenv import load_dotenv
+from pipeline.content_identity import content_fingerprint
 from pipeline.research_intelligence import ingest_analysis
 from pipeline.topic_taxonomy import TOPIC_TAXONOMY, canonical_topic, topic_catalog
 
@@ -164,8 +164,7 @@ def _source_quality(platform: str, content_type: str, text_length: int) -> float
 
 
 def _fingerprint(item: dict[str, Any]) -> str:
-    source = f"{item.get('title', '')}\n{item.get('text', '')}\n{item.get('source_url', '')}"
-    return hashlib.sha1(re.sub(r"\s+", " ", source).strip().encode("utf-8")).hexdigest()
+    return content_fingerprint(item)
 
 
 def _rule_analysis(item: dict[str, Any], taxonomy: dict[str, list[str]]) -> dict[str, Any]:
